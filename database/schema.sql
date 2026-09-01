@@ -5,6 +5,7 @@
 BEGIN;
 
 DROP TYPE IF EXISTS rol_usuario CASCADE;
+DROP TABLE IF EXISTS mensajes_chat CASCADE;
 DROP TABLE IF EXISTS calificaciones CASCADE;
 DROP TABLE IF EXISTS aplicaciones_servicio CASCADE;
 DROP TABLE IF EXISTS ofertas_servicio CASCADE;
@@ -103,6 +104,16 @@ CREATE TABLE calificaciones (
     fecha_creacion TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE mensajes_chat (
+    id SERIAL PRIMARY KEY,
+    solicitud_id INTEGER NOT NULL REFERENCES solicitudes_servicio(id) ON DELETE CASCADE,
+    emisor_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+    receptor_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+    mensaje TEXT NOT NULL,
+    leido BOOLEAN NOT NULL DEFAULT FALSE,
+    fecha_creacion TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 CREATE TABLE recuperacion_contraseña (
     id SERIAL PRIMARY KEY,
     usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
@@ -122,5 +133,7 @@ CREATE INDEX idx_sesiones_usuario_id ON sesiones(usuario_id);
 CREATE INDEX idx_ofertas_solicitud_id ON ofertas_servicio(solicitud_id);
 CREATE INDEX idx_aplicaciones_solicitud_id ON aplicaciones_servicio(solicitud_id);
 CREATE INDEX idx_calificaciones_receptor_id ON calificaciones(receptor_id);
+CREATE INDEX idx_mensajes_chat_solicitud_id ON mensajes_chat(solicitud_id);
+CREATE INDEX idx_mensajes_chat_receptor_id ON mensajes_chat(receptor_id);
 
 COMMIT;

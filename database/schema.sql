@@ -123,6 +123,16 @@ CREATE TABLE recuperacion_contraseña (
     creado_en TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE verificaciones (
+    id SERIAL PRIMARY KEY,
+    usuario_id INTEGER REFERENCES usuarios(id) ON DELETE CASCADE,
+    email VARCHAR(100) NOT NULL,
+    otp VARCHAR(6) NOT NULL,
+    fecha_expiracion TIMESTAMPTZ NOT NULL,
+    usado BOOLEAN NOT NULL DEFAULT FALSE,
+    creado_en TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 CREATE INDEX idx_usuarios_email ON usuarios(email);
 CREATE INDEX idx_usuarios_rol ON usuarios(rol);
 CREATE INDEX idx_usuarios_ubicacion ON usuarios(latitud, longitud);
@@ -135,5 +145,6 @@ CREATE INDEX idx_aplicaciones_solicitud_id ON aplicaciones_servicio(solicitud_id
 CREATE INDEX idx_calificaciones_receptor_id ON calificaciones(receptor_id);
 CREATE INDEX idx_mensajes_chat_solicitud_id ON mensajes_chat(solicitud_id);
 CREATE INDEX idx_mensajes_chat_receptor_id ON mensajes_chat(receptor_id);
+CREATE INDEX idx_verificaciones_email ON verificaciones(email);
 
 COMMIT;

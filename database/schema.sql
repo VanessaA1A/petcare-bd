@@ -23,6 +23,9 @@ CREATE TABLE usuarios (
     password_hash TEXT NOT NULL,
     rol rol_usuario NOT NULL DEFAULT 'propietario',
     rol_confirmado BOOLEAN NOT NULL DEFAULT FALSE,
+    latitud DECIMAL(10,8),
+    longitud DECIMAL(11,8),
+    direccion_texto VARCHAR(255),
     nombre VARCHAR(100),
     apellido VARCHAR(100),
     telefono VARCHAR(30),
@@ -111,6 +114,7 @@ CREATE TABLE recuperacion_contraseña (
 
 CREATE INDEX idx_usuarios_email ON usuarios(email);
 CREATE INDEX idx_usuarios_rol ON usuarios(rol);
+CREATE INDEX idx_usuarios_ubicacion ON usuarios(latitud, longitud);
 CREATE INDEX idx_solicitudes_estado ON solicitudes_servicio(estado);
 CREATE INDEX idx_solicitudes_fecha_creacion ON solicitudes_servicio(fecha_creacion);
 CREATE INDEX idx_mascotas_owner_id ON mascotas(owner_id);

@@ -22,6 +22,7 @@ CREATE TABLE usuarios (
     email VARCHAR(255) NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
     rol rol_usuario NOT NULL DEFAULT 'propietario',
+    rol_confirmado BOOLEAN NOT NULL DEFAULT FALSE,
     nombre VARCHAR(100),
     apellido VARCHAR(100),
     telefono VARCHAR(30),

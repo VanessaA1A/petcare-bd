@@ -371,3 +371,22 @@ También incluye una fila de ejemplo (una o dos) para el resto de tablas: califi
 mensajes de chat (incluyendo uno con `image_url`), una verificación OTP, favoritos, una nota
 de usuario, una búsqueda guardada, una sesión, entradas de `logs_auditoria`, una emergencia
 de ejemplo y una reacción de `valoraciones_tiempo_real`.
+
+### Seed de demostración (`seeds_demo.sql`)
+
+`database/seeds/seeds_demo.sql` es un dataset independiente (emails `@petcare.demo`, no choca
+con `seed.sql`) pensado para hacer una demo completa: un admin, un propietario (Juan) con 3
+perros (Firulais, Rocky, Luna — **PetCare es solo para perros**), dos cuidadoras/cuidador
+(María y Carlos, **sin mascotas propias**, por la Restricción 2), 3 ofertas, 5 solicitudes
+cubriendo los 5 estados reales de `service_requests.status` (PENDING/ACCEPTED/
+DONE_BY_CAREGIVER/COMPLETED/CANCELLED), calificaciones, mensajes de chat, expediente médico
+(con una vacuna próxima a vencer, para ver la alerta en acción), una alerta de mascota
+perdida con un avistamiento, y evidencia fotográfica antes/después.
+
+Las 4 cuentas usan la contraseña **`Demo123!`** con un hash bcrypt real (no un placeholder) —
+se puede iniciar sesión de verdad con estas credenciales:
+`admin@petcare.demo`, `juan@petcare.demo`, `maria@petcare.demo`, `carlos@petcare.demo`.
+
+```bash
+psql -U postgres -d petcare -f database/seeds/seeds_demo.sql
+```

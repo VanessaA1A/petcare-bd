@@ -122,7 +122,36 @@ Restricción: `UNIQUE(service_request_id, rated_by_role)` — cada lado del serv
 | sender_id / receiver_id | INTEGER | Participantes (FK a usuarios) |
 | message | TEXT | Contenido |
 | is_read | BOOLEAN | Si el receptor ya lo leyó |
+| image_url | TEXT | URL de una imagen adjunta al mensaje (opcional), servida por `GET /api/chat/imagen/{filename}` |
 | created_at | TIMESTAMPTZ | Fecha |
+
+### emergencias
+| Columna | Tipo | Descripción |
+| --- | --- | --- |
+| id | SERIAL | Identificador primario |
+| service_request_id | INTEGER | Servicio en curso durante el que se reporta (FK) |
+| reported_by | INTEGER | Quién reporta, dueño o cuidador (FK a usuarios) |
+| tipo | TEXT | MEDICA / ACCIDENTE / MASCOTA_PERDIDA / OTRO |
+| descripcion | TEXT | Detalle opcional de la emergencia |
+| created_at | TIMESTAMPTZ | Fecha del reporte |
+
+Botón de emergencia: se reporta durante un servicio en curso (`service_requests.status = 'ACCEPTED'`); el backend envía una notificación FCM al dueño, al cuidador asignado y a todos los usuarios con `rol = 'administrador'`.
+
+### valoraciones_tiempo_real
+| Columna | Tipo | Descripción |
+| --- | --- | --- |
+| id | SERIAL | Identificador primario |
+| service_request_id | INTEGER | Servicio en curso al que aplica la reacción (FK) |
+| usuario_id | INTEGER | Quién envía la reacción, normalmente el dueño (FK a usuarios) |
+| tipo_reaccion | TEXT | CORAZON / ESTRELLA / PULGAR |
+| created_at | TIMESTAMPTZ | Fecha de la reacción |
+
+Reacción rápida enviada mientras el servicio está en curso (`service_requests.status = 'ACCEPTED'`), independiente de la calificación final que se deja al completar el servicio en `ratings`.
+
+> Nota de procedencia: el DDL de `emergencias` y `valoraciones_tiempo_real` no se copió de
+> un archivo literal, se redactó siguiendo las convenciones ya usadas en el resto del
+> esquema (ver la nota en [MIGRATIONS.md](MIGRATIONS.md)). Vale la pena confirmarlo contra
+> la especificación de producto original si está disponible.
 
 ### verificaciones
 | Columna | Tipo | Descripción |
@@ -202,6 +231,10 @@ La API y la app usan el término "cuidador" de cara al usuario; el backend (`Rol
 - service_requests.id → service_applications.service_request_id
 - service_requests.id → ratings.service_request_id
 - service_requests.id → chat_messages.service_request_id
+- service_requests.id → emergencias.service_request_id
+- usuarios.id → emergencias.reported_by
+- service_requests.id → valoraciones_tiempo_real.service_request_id
+- usuarios.id → valoraciones_tiempo_real.usuario_id
 - offered_services.id → service_requests.offered_service_id (origen Flow A)
 - offered_services.id → service_applications.offered_service_id
 - usuarios.id → logs_auditoria.usuario_id
@@ -221,6 +254,8 @@ erDiagram
     service_requests ||--o{ service_applications : has
     service_requests ||--o{ ratings : has
     service_requests ||--o{ chat_messages : has
+    service_requests ||--o{ emergencias : reports
+    service_requests ||--o{ valoraciones_tiempo_real : reacts
     offered_services ||--o{ service_requests : originates
 
     usuarios {
@@ -273,5 +308,6 @@ Para aplicar los cambios incrementales por separado en vez de `schema.sql` compl
 Datos de ejemplo en `database/seeds/seed.sql`: un administrador, un propietario con dos
 mascotas, un cuidador con una oferta activa, y una solicitud con una postulación pendiente.
 También incluye una fila de ejemplo (una o dos) para el resto de tablas: calificaciones,
-mensajes de chat, una verificación OTP, favoritos, una nota de usuario, una búsqueda
-guardada, una sesión y entradas de `logs_auditoria`.
+mensajes de chat (incluyendo uno con `image_url`), una verificación OTP, favoritos, una nota
+de usuario, una búsqueda guardada, una sesión, entradas de `logs_auditoria`, una emergencia
+de ejemplo y una reacción de `valoraciones_tiempo_real`.

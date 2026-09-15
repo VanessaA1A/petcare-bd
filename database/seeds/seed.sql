@@ -79,21 +79,54 @@ VALUES
     )
 ON CONFLICT (service_request_id, rated_by_role) DO NOTHING;
 
-INSERT INTO chat_messages (service_request_id, sender_id, receiver_id, message, is_read)
+INSERT INTO chat_messages (service_request_id, sender_id, receiver_id, message, is_read, image_url)
 VALUES
     (
         1001,
         (SELECT id FROM usuarios WHERE email = 'owner@petcare.local'),
         (SELECT id FROM usuarios WHERE email = 'caregiver@petcare.local'),
         'Hola, ¿a qué hora puedes pasear a Coco hoy?',
-        TRUE
+        TRUE,
+        NULL
     ),
     (
         1001,
         (SELECT id FROM usuarios WHERE email = 'caregiver@petcare.local'),
         (SELECT id FROM usuarios WHERE email = 'owner@petcare.local'),
         'Puedo pasar a las 4pm, ¿te parece bien?',
-        FALSE
+        FALSE,
+        NULL
+    ),
+    (
+        1001,
+        (SELECT id FROM usuarios WHERE email = 'caregiver@petcare.local'),
+        (SELECT id FROM usuarios WHERE email = 'owner@petcare.local'),
+        'Aquí va una foto de Coco disfrutando el paseo.',
+        FALSE,
+        'https://petcare.local/api/chat/imagen/demo-coco-paseo.jpg'
+    )
+ON CONFLICT DO NOTHING;
+
+-- Emergencia de ejemplo (migración 011): reportada por el propietario durante el servicio
+-- 1001 en curso.
+INSERT INTO emergencias (service_request_id, reported_by, tipo, descripcion)
+VALUES
+    (
+        1001,
+        (SELECT id FROM usuarios WHERE email = 'owner@petcare.local'),
+        'MASCOTA_PERDIDA',
+        'Coco se soltó de la correa cerca del parque, seguimos buscándolo.'
+    )
+ON CONFLICT DO NOTHING;
+
+-- Reacción en tiempo real de ejemplo (migración 012): el propietario reacciona mientras
+-- el servicio 1001 está en curso.
+INSERT INTO valoraciones_tiempo_real (service_request_id, usuario_id, tipo_reaccion)
+VALUES
+    (
+        1001,
+        (SELECT id FROM usuarios WHERE email = 'owner@petcare.local'),
+        'CORAZON'
     )
 ON CONFLICT DO NOTHING;
 

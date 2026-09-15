@@ -6,6 +6,8 @@
 
 DROP TABLE IF EXISTS logs_auditoria CASCADE;
 DROP TABLE IF EXISTS verificaciones CASCADE;
+DROP TABLE IF EXISTS valoraciones_tiempo_real CASCADE;
+DROP TABLE IF EXISTS emergencias CASCADE;
 DROP TABLE IF EXISTS chat_messages CASCADE;
 DROP TABLE IF EXISTS favoritos CASCADE;
 DROP TABLE IF EXISTS notas_usuario CASCADE;
@@ -175,11 +177,33 @@ CREATE TABLE chat_messages (
   receiver_id integer NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
   message text NOT NULL,
   is_read boolean NOT NULL DEFAULT false,
+  image_url text,
   created_at timestamptz DEFAULT NOW()
 );
 
 CREATE INDEX IF NOT EXISTS idx_chat_messages_service_request_id ON chat_messages(service_request_id);
 CREATE INDEX IF NOT EXISTS idx_chat_messages_receiver_id ON chat_messages(receiver_id);
+
+CREATE TABLE emergencias (
+  id serial PRIMARY KEY,
+  service_request_id integer NOT NULL REFERENCES service_requests(id) ON DELETE CASCADE,
+  reported_by integer NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+  tipo text NOT NULL CHECK (tipo IN ('MEDICA', 'ACCIDENTE', 'MASCOTA_PERDIDA', 'OTRO')),
+  descripcion text,
+  created_at timestamptz DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_emergencias_service_request_id ON emergencias(service_request_id);
+
+CREATE TABLE valoraciones_tiempo_real (
+  id serial PRIMARY KEY,
+  service_request_id integer NOT NULL REFERENCES service_requests(id) ON DELETE CASCADE,
+  usuario_id integer NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+  tipo_reaccion text NOT NULL CHECK (tipo_reaccion IN ('CORAZON', 'ESTRELLA', 'PULGAR')),
+  created_at timestamptz DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_valoraciones_tiempo_real_service_request_id ON valoraciones_tiempo_real(service_request_id);
 
 CREATE TABLE verificaciones (
   id serial PRIMARY KEY,

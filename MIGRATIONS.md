@@ -42,6 +42,18 @@ sobre una base que ya tiene algunas de ellas.
 | `007_add_fcm_token.sql` | `usuarios.fcm_token` (notificaciones push) |
 | `008_add_no_molestar.sql` | `usuarios.no_molestar` |
 | `009_add_logs_auditoria.sql` | Tabla `logs_auditoria` (bitácora de auditoría de acciones de usuario; aún sin código de aplicación que escriba en ella) |
+| `010_add_chat_image_url.sql` | `chat_messages.image_url` — permite adjuntar una imagen a un mensaje de chat |
+| `011_add_emergencias.sql` | Tabla `emergencias` — reporte de emergencia durante un servicio en curso, con notificación FCM al dueño, al cuidador y a los administradores |
+| `012_add_valoraciones_tiempo_real.sql` | Tabla `valoraciones_tiempo_real` — reacción rápida (corazón/estrella/pulgar) del dueño mientras el servicio está en curso, independiente de `ratings` |
+
+> **Nota de procedencia (010-012):** estas tres migraciones mirroran el commit `0a399f0`
+> de `petcare-services` (2026-09-14). El DDL de `010` se copió literal de
+> `petcare-services/migrations/010_add_chat_image_url.sql`. El DDL de `011` y `012`
+> (tablas `emergencias` y `valoraciones_tiempo_real`) se redactó siguiendo las
+> convenciones ya existentes en `petcare-services` (nombres de columna, estilo de FK,
+> índice `idx_<tabla>_<columna>`) en vez de copiarse de un DDL literal ya provisto — si
+> tienes la especificación de producto original de "botón de emergencia" y "valoración en
+> tiempo real", vale la pena confirmar contra ella que los nombres/tipos coinciden.
 
 No hay una migración `001`: `database/schema.sql` cumple ese rol de línea base (es el
 esquema completo desde cero, no un delta).
@@ -54,8 +66,9 @@ necesitas revertir una migración puntual:
 
 - **Columna agregada** (`ADD COLUMN`): `ALTER TABLE <tabla> DROP COLUMN IF EXISTS <columna>;`
 - **Tabla nueva** (`CREATE TABLE`): `DROP TABLE IF EXISTS <tabla> CASCADE;` — revisa primero
-  si algo depende de ella (`favoritos`, `chat_messages`, etc. tienen FKs hacia `usuarios`/`pets`,
-  pero nada les apunta a ellas, así que son seguras de borrar de forma aislada).
+  si algo depende de ella (`favoritos`, `chat_messages`, `emergencias`, `valoraciones_tiempo_real`,
+  etc. tienen FKs hacia `usuarios`/`pets`/`service_requests`, pero nada les apunta a ellas, así
+  que son seguras de borrar de forma aislada).
 
 Antes de un rollback en una base con datos reales, respalda primero:
 

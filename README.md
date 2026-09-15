@@ -174,7 +174,7 @@ mientras tanto).
 | Columna | Tipo | Descripción |
 | --- | --- | --- |
 | id | SERIAL | Identificador primario |
-| mascota_id | INTEGER | Mascota a la que pertenece (FK a `pets`) |
+| pets_id | INTEGER | Mascota a la que pertenece (FK a `pets`) |
 | tipo | VARCHAR(30) | VACUNA / DESPARASITACION / ALERGIA / MEDICAMENTO / CIRUGIA / PESO / NOTA |
 | titulo | VARCHAR(200) | Título de la entrada |
 | descripcion | TEXT | Detalle opcional |
@@ -192,7 +192,7 @@ dueño cuando falten 15 días o menos.
 | Columna (alertas_perdida) | Tipo | Descripción |
 | --- | --- | --- |
 | id | SERIAL | Identificador primario |
-| mascota_id | INTEGER | Mascota perdida (FK a `pets`) |
+| pets_id | INTEGER | Mascota perdida (FK a `pets`) |
 | usuario_id | INTEGER | Dueño que activó la alerta (FK a `usuarios`) |
 | descripcion | TEXT | Detalle opcional |
 | latitud / longitud / direccion_texto | DECIMAL / VARCHAR | Ubicación de la alerta |

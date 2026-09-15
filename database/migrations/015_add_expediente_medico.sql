@@ -2,12 +2,12 @@
 -- el cuidador puede verlo (solo lectura) durante un servicio activo. fecha_proxima alimenta
 -- las alertas de vacunas proximas (cron diario en el backend).
 --
--- Nota: el prompt original decia "mascota_id REFERENCES mascotas(id)", pero la tabla real de
--- mascotas en este esquema se llama "pets" (ver database/schema.sql) - se referencia pets(id).
+-- Nota: la tabla de mascotas en este esquema se llama "pets" (no "mascotas"); por decision
+-- del usuario se mantiene ese nombre y las tablas nuevas usan "pets_id" como FK.
 
 CREATE TABLE IF NOT EXISTS expediente_medico (
     id SERIAL PRIMARY KEY,
-    mascota_id INTEGER REFERENCES pets(id) ON DELETE CASCADE,
+    pets_id INTEGER REFERENCES pets(id) ON DELETE CASCADE,
     tipo VARCHAR(30) NOT NULL CHECK (tipo IN ('VACUNA', 'DESPARASITACION', 'ALERGIA', 'MEDICAMENTO', 'CIRUGIA', 'PESO', 'NOTA')),
     titulo VARCHAR(200) NOT NULL,
     descripcion TEXT,
@@ -19,5 +19,5 @@ CREATE TABLE IF NOT EXISTS expediente_medico (
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS idx_expediente_medico_mascota_id ON expediente_medico(mascota_id);
+CREATE INDEX IF NOT EXISTS idx_expediente_medico_pets_id ON expediente_medico(pets_id);
 CREATE INDEX IF NOT EXISTS idx_expediente_medico_fecha_proxima ON expediente_medico(fecha_proxima);

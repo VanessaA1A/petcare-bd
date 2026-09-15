@@ -2,12 +2,12 @@
 -- notifica por push a usuarios cercanos (1/5/10 km). Cualquier usuario puede reportar un
 -- avistamiento. Las alertas se cierran automaticamente a los 7 dias (job en el backend).
 --
--- Nota: el prompt original decia "mascota_id REFERENCES mascotas(id)", pero la tabla real de
--- mascotas en este esquema se llama "pets" (ver database/schema.sql) - se referencia pets(id).
+-- Nota: la tabla de mascotas en este esquema se llama "pets" (no "mascotas"); por decision
+-- del usuario se mantiene ese nombre y las tablas nuevas usan "pets_id" como FK.
 
 CREATE TABLE IF NOT EXISTS alertas_perdida (
     id SERIAL PRIMARY KEY,
-    mascota_id INTEGER REFERENCES pets(id),
+    pets_id INTEGER REFERENCES pets(id),
     usuario_id INTEGER REFERENCES usuarios(id),
     descripcion TEXT,
     latitud DECIMAL(10,8),
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS avistamientos (
     fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS idx_alertas_perdida_mascota_id ON alertas_perdida(mascota_id);
+CREATE INDEX IF NOT EXISTS idx_alertas_perdida_pets_id ON alertas_perdida(pets_id);
 CREATE INDEX IF NOT EXISTS idx_alertas_perdida_usuario_id ON alertas_perdida(usuario_id);
 CREATE INDEX IF NOT EXISTS idx_alertas_perdida_estado ON alertas_perdida(estado);
 CREATE INDEX IF NOT EXISTS idx_avistamientos_alerta_id ON avistamientos(alerta_id);

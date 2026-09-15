@@ -52,9 +52,9 @@ sobre una base que ya tiene algunas de ellas.
 
 > **Nota de procedencia (015-016):** el DDL de `expediente_medico` y `alertas_perdida`/`avistamientos`
 > sí fue provisto literalmente por el usuario, salvo un ajuste: el prompt original referenciaba
-> `mascota_id REFERENCES mascotas(id)`, pero la tabla real de mascotas en este esquema se llama
-> `pets` (no existe una tabla `mascotas`) — se corrigió la referencia a `pets(id)` en ambas
-> migraciones para que el DDL sea válido contra el esquema real.
+> `mascota_id REFERENCES mascotas(id)`. El usuario confirmó mantener el nombre real de la tabla
+> (`pets`, no existe una tabla `mascotas`) y usar `pets_id` como nombre de columna FK en las
+> tablas nuevas de aquí en adelante — se ajustaron ambas migraciones en consecuencia.
 
 > **Nota de procedencia (010-013):** estas tres migraciones mirroran el commit `0a399f0`
 > de `petcare-services` (2026-09-14). El DDL de `010` se copió literal de

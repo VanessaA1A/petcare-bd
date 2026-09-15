@@ -280,7 +280,7 @@ CREATE INDEX IF NOT EXISTS idx_evidencias_servicio_solicitud_id ON evidencias_se
 -- Bloque 11: expediente medico de la mascota (solo lectura para el cuidador durante un servicio activo).
 CREATE TABLE expediente_medico (
   id serial PRIMARY KEY,
-  mascota_id integer REFERENCES pets(id) ON DELETE CASCADE,
+  pets_id integer REFERENCES pets(id) ON DELETE CASCADE,
   tipo varchar(30) NOT NULL CHECK (tipo IN ('VACUNA', 'DESPARASITACION', 'ALERGIA', 'MEDICAMENTO', 'CIRUGIA', 'PESO', 'NOTA')),
   titulo varchar(200) NOT NULL,
   descripcion text,
@@ -292,13 +292,13 @@ CREATE TABLE expediente_medico (
   fecha_creacion timestamp DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS idx_expediente_medico_mascota_id ON expediente_medico(mascota_id);
+CREATE INDEX IF NOT EXISTS idx_expediente_medico_pets_id ON expediente_medico(pets_id);
 CREATE INDEX IF NOT EXISTS idx_expediente_medico_fecha_proxima ON expediente_medico(fecha_proxima);
 
 -- Bloque 12: alerta de mascota perdida y avistamientos reportados por otros usuarios.
 CREATE TABLE alertas_perdida (
   id serial PRIMARY KEY,
-  mascota_id integer REFERENCES pets(id),
+  pets_id integer REFERENCES pets(id),
   usuario_id integer REFERENCES usuarios(id),
   descripcion text,
   latitud decimal(10,8),
@@ -320,7 +320,7 @@ CREATE TABLE avistamientos (
   fecha timestamp DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS idx_alertas_perdida_mascota_id ON alertas_perdida(mascota_id);
+CREATE INDEX IF NOT EXISTS idx_alertas_perdida_pets_id ON alertas_perdida(pets_id);
 CREATE INDEX IF NOT EXISTS idx_alertas_perdida_usuario_id ON alertas_perdida(usuario_id);
 CREATE INDEX IF NOT EXISTS idx_alertas_perdida_estado ON alertas_perdida(estado);
 CREATE INDEX IF NOT EXISTS idx_avistamientos_alerta_id ON avistamientos(alerta_id);

@@ -1,0 +1,49 @@
+name: Schema CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  apply-schema:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: petcare
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d petcare"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Apply schema.sql to a clean database
+        env:
+          PGPASSWORD: postgres
+        run: psql -h localhost -U postgres -d petcare -v ON_ERROR_STOP=1 -f database/schema.sql
+
+      - name: Apply seed.sql
+        env:
+          PGPASSWORD: postgres
+        run: psql -h localhost -U postgres -d petcare -v ON_ERROR_STOP=1 -f database/seeds/seed.sql
+
+      - name: Apply migrations again (idempotency check)
+        env:
+          PGPASSWORD: postgres
+        run: |
+          for f in database/migrations/0*.sql; do
+            echo "Re-applying $f"
+            psql -h localhost -U postgres -d petcare -v ON_ERROR_STOP=1 -f "$f"
+          done

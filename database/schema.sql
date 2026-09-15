@@ -4,6 +4,9 @@
 -- (el esquema real que usan las entidades JPA del backend, con ddl-auto: validate).
 -- No editar a mano sin reflejar el mismo cambio en petcare-services; ver MIGRATIONS.md.
 
+DROP TABLE IF EXISTS avistamientos CASCADE;
+DROP TABLE IF EXISTS alertas_perdida CASCADE;
+DROP TABLE IF EXISTS expediente_medico CASCADE;
 DROP TABLE IF EXISTS evidencias_servicio CASCADE;
 DROP TABLE IF EXISTS logs_auditoria CASCADE;
 DROP TABLE IF EXISTS verificaciones CASCADE;
@@ -273,3 +276,51 @@ CREATE TABLE evidencias_servicio (
 );
 
 CREATE INDEX IF NOT EXISTS idx_evidencias_servicio_solicitud_id ON evidencias_servicio(solicitud_id);
+
+-- Bloque 11: expediente medico de la mascota (solo lectura para el cuidador durante un servicio activo).
+CREATE TABLE expediente_medico (
+  id serial PRIMARY KEY,
+  mascota_id integer REFERENCES pets(id) ON DELETE CASCADE,
+  tipo varchar(30) NOT NULL CHECK (tipo IN ('VACUNA', 'DESPARASITACION', 'ALERGIA', 'MEDICAMENTO', 'CIRUGIA', 'PESO', 'NOTA')),
+  titulo varchar(200) NOT NULL,
+  descripcion text,
+  fecha date NOT NULL,
+  fecha_proxima date,
+  veterinario_nombre varchar(150),
+  veterinario_telefono varchar(20),
+  imagen_carnet_url text,
+  fecha_creacion timestamp DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_expediente_medico_mascota_id ON expediente_medico(mascota_id);
+CREATE INDEX IF NOT EXISTS idx_expediente_medico_fecha_proxima ON expediente_medico(fecha_proxima);
+
+-- Bloque 12: alerta de mascota perdida y avistamientos reportados por otros usuarios.
+CREATE TABLE alertas_perdida (
+  id serial PRIMARY KEY,
+  mascota_id integer REFERENCES pets(id),
+  usuario_id integer REFERENCES usuarios(id),
+  descripcion text,
+  latitud decimal(10,8),
+  longitud decimal(11,8),
+  direccion_texto varchar(255),
+  estado varchar(20) DEFAULT 'ACTIVA' CHECK (estado IN ('ACTIVA', 'ENCONTRADA', 'CERRADA')),
+  fecha_creacion timestamp DEFAULT CURRENT_TIMESTAMP,
+  fecha_cierre timestamp
+);
+
+CREATE TABLE avistamientos (
+  id serial PRIMARY KEY,
+  alerta_id integer REFERENCES alertas_perdida(id) ON DELETE CASCADE,
+  usuario_id integer REFERENCES usuarios(id),
+  latitud decimal(10,8),
+  longitud decimal(11,8),
+  comentario text,
+  imagen_url text,
+  fecha timestamp DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_alertas_perdida_mascota_id ON alertas_perdida(mascota_id);
+CREATE INDEX IF NOT EXISTS idx_alertas_perdida_usuario_id ON alertas_perdida(usuario_id);
+CREATE INDEX IF NOT EXISTS idx_alertas_perdida_estado ON alertas_perdida(estado);
+CREATE INDEX IF NOT EXISTS idx_avistamientos_alerta_id ON avistamientos(alerta_id);

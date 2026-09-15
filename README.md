@@ -170,6 +170,49 @@ a COMPLETADO — con una excepción flexible: sin internet, el cambio de estado 
 igual y la foto se sube cuando el dispositivo reconecta (queda marcado como "sin evidencia"
 mientras tanto).
 
+### expediente_medico
+| Columna | Tipo | Descripción |
+| --- | --- | --- |
+| id | SERIAL | Identificador primario |
+| mascota_id | INTEGER | Mascota a la que pertenece (FK a `pets`) |
+| tipo | VARCHAR(30) | VACUNA / DESPARASITACION / ALERGIA / MEDICAMENTO / CIRUGIA / PESO / NOTA |
+| titulo | VARCHAR(200) | Título de la entrada |
+| descripcion | TEXT | Detalle opcional |
+| fecha | DATE | Fecha del evento |
+| fecha_proxima | DATE | Próxima fecha (p. ej. refuerzo de vacuna); alimenta las alertas automáticas |
+| veterinario_nombre / veterinario_telefono | VARCHAR | Datos de contacto opcionales del veterinario |
+| imagen_carnet_url | TEXT | Foto opcional del carnet de vacunas |
+| fecha_creacion | TIMESTAMP | Fecha de alta del registro |
+
+Solo el dueño puede editar (crear/actualizar/eliminar); el cuidador puede verlo en solo
+lectura mientras hay un servicio activo. Un job diario revisa `fecha_proxima` y notifica al
+dueño cuando falten 15 días o menos.
+
+### alertas_perdida / avistamientos
+| Columna (alertas_perdida) | Tipo | Descripción |
+| --- | --- | --- |
+| id | SERIAL | Identificador primario |
+| mascota_id | INTEGER | Mascota perdida (FK a `pets`) |
+| usuario_id | INTEGER | Dueño que activó la alerta (FK a `usuarios`) |
+| descripcion | TEXT | Detalle opcional |
+| latitud / longitud / direccion_texto | DECIMAL / VARCHAR | Ubicación de la alerta |
+| estado | VARCHAR(20) | ACTIVA / ENCONTRADA / CERRADA |
+| fecha_creacion / fecha_cierre | TIMESTAMP | Alta y cierre de la alerta |
+
+| Columna (avistamientos) | Tipo | Descripción |
+| --- | --- | --- |
+| id | SERIAL | Identificador primario |
+| alerta_id | INTEGER | Alerta a la que corresponde (FK, cascade) |
+| usuario_id | INTEGER | Quién reporta el avistamiento |
+| latitud / longitud | DECIMAL | Dónde se vio a la mascota |
+| comentario | TEXT | Detalle opcional |
+| imagen_url | TEXT | Foto opcional del avistamiento |
+| fecha | TIMESTAMP | Fecha del reporte |
+
+Al crear una alerta, el backend notifica por push a usuarios en 1 km (urgente), 5 km
+(ampliado) y 10 km (zona). Cualquier usuario puede reportar un avistamiento; las alertas se
+cierran automáticamente a los 7 días.
+
 ### verificaciones
 | Columna | Tipo | Descripción |
 | --- | --- | --- |

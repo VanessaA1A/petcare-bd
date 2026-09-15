@@ -47,6 +47,14 @@ sobre una base que ya tiene algunas de ellas.
 | `012_add_valoraciones_tiempo_real.sql` | Tabla `valoraciones_tiempo_real` — reacción rápida (corazón/estrella/pulgar) del dueño mientras el servicio está en curso, independiente de `ratings` |
 | `013_add_badge_usuarios.sql` | `usuarios.badge` — etiqueta calculada (NUEVO/EN_CRECIMIENTO/CONFIABLE/EXPERIMENTADO/ELITE/EN_OBSERVACION) según servicios completados, calificación promedio y cancelaciones; se recalcula automáticamente en el backend |
 | `014_add_evidencias_servicio.sql` | Tabla `evidencias_servicio` — foto obligatoria (con excepción sin internet) antes/después de un servicio, con nota y ubicación opcional |
+| `015_add_expediente_medico.sql` | Tabla `expediente_medico` — historial médico de la mascota (vacunas, desparasitación, alergias, etc.), editable solo por el dueño, visible (solo lectura) para el cuidador durante un servicio activo |
+| `016_add_alertas_perdida.sql` | Tablas `alertas_perdida` y `avistamientos` — alerta de mascota perdida con notificación a usuarios cercanos (1/5/10 km) y avistamientos reportados por otros usuarios |
+
+> **Nota de procedencia (015-016):** el DDL de `expediente_medico` y `alertas_perdida`/`avistamientos`
+> sí fue provisto literalmente por el usuario, salvo un ajuste: el prompt original referenciaba
+> `mascota_id REFERENCES mascotas(id)`, pero la tabla real de mascotas en este esquema se llama
+> `pets` (no existe una tabla `mascotas`) — se corrigió la referencia a `pets(id)` en ambas
+> migraciones para que el DDL sea válido contra el esquema real.
 
 > **Nota de procedencia (010-013):** estas tres migraciones mirroran el commit `0a399f0`
 > de `petcare-services` (2026-09-14). El DDL de `010` se copió literal de

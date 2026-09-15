@@ -13,7 +13,7 @@ psql -U postgres -d petcare -f database/schema.sql
 psql -U postgres -d petcare -f database/seeds/seed.sql   # opcional, datos de ejemplo
 ```
 
-`database/schema.sql` ya incluye todo lo agregado por las migraciones 002-008 (ver más
+`database/schema.sql` ya incluye todo lo agregado por las migraciones 002-009 (ver más
 abajo) — no hace falta aplicarlas por separado en este caso.
 
 ## 2. Base existente (aplicar solo lo nuevo)
@@ -41,6 +41,7 @@ sobre una base que ya tiene algunas de ellas.
 | `006_play_store_ready_updates.sql` | Tablas `favoritos`, `notas_usuario`, `busquedas_guardadas`; columnas 2FA y bloqueo en `usuarios`; `motivo_cancelacion`/`fecha_expiracion` en `service_requests`; `respuesta_calificacion` en `ratings` |
 | `007_add_fcm_token.sql` | `usuarios.fcm_token` (notificaciones push) |
 | `008_add_no_molestar.sql` | `usuarios.no_molestar` |
+| `009_add_logs_auditoria.sql` | Tabla `logs_auditoria` (bitácora de auditoría de acciones de usuario; aún sin código de aplicación que escriba en ella) |
 
 No hay una migración `001`: `database/schema.sql` cumple ese rol de línea base (es el
 esquema completo desde cero, no un delta).

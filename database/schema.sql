@@ -4,6 +4,7 @@
 -- (el esquema real que usan las entidades JPA del backend, con ddl-auto: validate).
 -- No editar a mano sin reflejar el mismo cambio en petcare-services; ver MIGRATIONS.md.
 
+DROP TABLE IF EXISTS logs_auditoria CASCADE;
 DROP TABLE IF EXISTS verificaciones CASCADE;
 DROP TABLE IF EXISTS chat_messages CASCADE;
 DROP TABLE IF EXISTS favoritos CASCADE;
@@ -220,3 +221,15 @@ CREATE TABLE busquedas_guardadas (
   filtros_json jsonb NOT NULL,
   fecha_creacion timestamptz DEFAULT NOW()
 );
+
+CREATE TABLE logs_auditoria (
+  id serial PRIMARY KEY,
+  usuario_id integer REFERENCES usuarios(id) ON DELETE SET NULL,
+  accion varchar(100) NOT NULL,
+  detalles jsonb,
+  ip varchar(45),
+  fecha timestamp DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_logs_usuario ON logs_auditoria(usuario_id);
+CREATE INDEX IF NOT EXISTS idx_logs_fecha ON logs_auditoria(fecha);

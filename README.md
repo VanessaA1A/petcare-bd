@@ -163,6 +163,20 @@ Restricción: exactamente uno de `cuidador_id` / `mascota_id` debe estar present
 | filtros_json | JSONB | Filtros serializados |
 | fecha_creacion | TIMESTAMPTZ | Fecha |
 
+### logs_auditoria
+| Columna | Tipo | Descripción |
+| --- | --- | --- |
+| id | SERIAL | Identificador primario |
+| usuario_id | INTEGER | Usuario que ejecutó la acción (opcional, FK a usuarios, `ON DELETE SET NULL`) |
+| accion | VARCHAR(100) | Nombre de la acción registrada (login, cambio de datos sensibles, etc.) |
+| detalles | JSONB | Payload libre con contexto adicional de la acción |
+| ip | VARCHAR(45) | Dirección IP de origen |
+| fecha | TIMESTAMP | Fecha del evento |
+
+Bitácora de auditoría (migración 009). Todavía no hay código de aplicación en
+`petcare-services` que escriba en esta tabla; el esquema se agregó primero según lo
+solicitado, conectarla a eventos reales queda como trabajo futuro.
+
 ### sesiones / actividades / password_recovery
 Tablas de soporte para autenticación: `sesiones` registra cada login (token, IP, user agent), `actividades` es una bitácora ligada a una sesión, y `password_recovery` guarda tokens de recuperación (histórico; el flujo activo usa `reset_token` en `usuarios`).
 
@@ -190,6 +204,7 @@ La API y la app usan el término "cuidador" de cara al usuario; el backend (`Rol
 - service_requests.id → chat_messages.service_request_id
 - offered_services.id → service_requests.offered_service_id (origen Flow A)
 - offered_services.id → service_applications.offered_service_id
+- usuarios.id → logs_auditoria.usuario_id
 
 ## Diagrama ER
 
@@ -202,6 +217,7 @@ erDiagram
     usuarios ||--o{ service_applications : applies
     usuarios ||--o{ ratings : sends
     usuarios ||--o{ favoritos : marks
+    usuarios ||--o{ logs_auditoria : logs
     service_requests ||--o{ service_applications : has
     service_requests ||--o{ ratings : has
     service_requests ||--o{ chat_messages : has
@@ -233,6 +249,13 @@ erDiagram
         integer caregiver_id FK
         text title
     }
+
+    logs_auditoria {
+        serial id PK
+        integer usuario_id FK
+        varchar accion
+        timestamp fecha
+    }
 ```
 
 ## Inicialización
@@ -249,3 +272,6 @@ Para aplicar los cambios incrementales por separado en vez de `schema.sql` compl
 
 Datos de ejemplo en `database/seeds/seed.sql`: un administrador, un propietario con dos
 mascotas, un cuidador con una oferta activa, y una solicitud con una postulación pendiente.
+También incluye una fila de ejemplo (una o dos) para el resto de tablas: calificaciones,
+mensajes de chat, una verificación OTP, favoritos, una nota de usuario, una búsqueda
+guardada, una sesión y entradas de `logs_auditoria`.

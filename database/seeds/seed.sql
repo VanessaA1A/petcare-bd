@@ -57,3 +57,110 @@ VALUES
         'PENDING'
     )
 ON CONFLICT (service_request_id, caregiver_id) DO NOTHING;
+
+-- UNIQUE(service_request_id, rated_by_role): cada lado del servicio califica una sola vez.
+INSERT INTO ratings (service_request_id, caregiver_id, owner_id, rated_by_role, score, comment)
+VALUES
+    (
+        1001,
+        (SELECT id FROM usuarios WHERE email = 'caregiver@petcare.local'),
+        (SELECT id FROM usuarios WHERE email = 'owner@petcare.local'),
+        'OWNER',
+        4.5,
+        'Excelente paseo, muy puntual con Coco.'
+    ),
+    (
+        1001,
+        (SELECT id FROM usuarios WHERE email = 'caregiver@petcare.local'),
+        (SELECT id FROM usuarios WHERE email = 'owner@petcare.local'),
+        'CAREGIVER',
+        5.0,
+        'Coco es un perro muy tranquilo, un placer pasearlo.'
+    )
+ON CONFLICT (service_request_id, rated_by_role) DO NOTHING;
+
+INSERT INTO chat_messages (service_request_id, sender_id, receiver_id, message, is_read)
+VALUES
+    (
+        1001,
+        (SELECT id FROM usuarios WHERE email = 'owner@petcare.local'),
+        (SELECT id FROM usuarios WHERE email = 'caregiver@petcare.local'),
+        'Hola, ¿a qué hora puedes pasear a Coco hoy?',
+        TRUE
+    ),
+    (
+        1001,
+        (SELECT id FROM usuarios WHERE email = 'caregiver@petcare.local'),
+        (SELECT id FROM usuarios WHERE email = 'owner@petcare.local'),
+        'Puedo pasar a las 4pm, ¿te parece bien?',
+        FALSE
+    )
+ON CONFLICT DO NOTHING;
+
+-- OTP de ejemplo para verificar el correo del propietario (ya vencido, es solo demo).
+INSERT INTO verificaciones (email, otp, fecha_expiracion, usado)
+VALUES
+    ('owner@petcare.local', '123456', NOW() + INTERVAL '5 minutes', FALSE)
+ON CONFLICT DO NOTHING;
+
+-- CHECK (cuidador_id IS NOT NULL OR mascota_id IS NOT NULL): un favorito de cuidador y
+-- otro de mascota para el mismo propietario.
+INSERT INTO favoritos (usuario_id, cuidador_id, mascota_id)
+VALUES
+    (
+        (SELECT id FROM usuarios WHERE email = 'owner@petcare.local'),
+        (SELECT id FROM usuarios WHERE email = 'caregiver@petcare.local'),
+        NULL
+    ),
+    (
+        (SELECT id FROM usuarios WHERE email = 'owner@petcare.local'),
+        NULL,
+        (SELECT id FROM pets WHERE name = 'Milo' LIMIT 1)
+    )
+ON CONFLICT DO NOTHING;
+
+INSERT INTO notas_usuario (propietario_id, objetivo_id, nota)
+VALUES
+    (
+        (SELECT id FROM usuarios WHERE email = 'owner@petcare.local'),
+        (SELECT id FROM usuarios WHERE email = 'caregiver@petcare.local'),
+        'Muy puntual, se le puede confiar la llave de la casa.'
+    )
+ON CONFLICT DO NOTHING;
+
+INSERT INTO busquedas_guardadas (usuario_id, nombre, filtros_json)
+VALUES
+    (
+        (SELECT id FROM usuarios WHERE email = 'owner@petcare.local'),
+        'Paseadores cerca de mi casa',
+        '{"tipo": "paseo", "radioKm": 5}'::jsonb
+    )
+ON CONFLICT DO NOTHING;
+
+-- token_sesion es un valor de ejemplo, no un JWT real.
+INSERT INTO sesiones (usuario_id, token_sesion, ip_address, user_agent)
+VALUES
+    (
+        (SELECT id FROM usuarios WHERE email = 'owner@petcare.local'),
+        'demo-token-sesion-owner-0001',
+        '192.168.1.10',
+        'PetCare-Android/1.0'
+    )
+ON CONFLICT (token_sesion) DO NOTHING;
+
+-- logs_auditoria (migración 009): aún sin escritores en la aplicación, solo esquema.
+INSERT INTO logs_auditoria (usuario_id, accion, detalles, ip)
+VALUES
+    (
+        (SELECT id FROM usuarios WHERE email = 'owner@petcare.local'),
+        'login',
+        '{"metodo": "password"}'::jsonb,
+        '192.168.1.10'
+    ),
+    (
+        (SELECT id FROM usuarios WHERE email = 'owner@petcare.local'),
+        'actualizacion_perfil',
+        '{"campo": "telefono"}'::jsonb,
+        '192.168.1.10'
+    )
+ON CONFLICT DO NOTHING;

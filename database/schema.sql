@@ -4,6 +4,7 @@
 -- (el esquema real que usan las entidades JPA del backend, con ddl-auto: validate).
 -- No editar a mano sin reflejar el mismo cambio en petcare-services; ver MIGRATIONS.md.
 
+DROP TABLE IF EXISTS evidencias_servicio CASCADE;
 DROP TABLE IF EXISTS logs_auditoria CASCADE;
 DROP TABLE IF EXISTS verificaciones CASCADE;
 DROP TABLE IF EXISTS valoraciones_tiempo_real CASCADE;
@@ -258,3 +259,17 @@ CREATE TABLE logs_auditoria (
 
 CREATE INDEX IF NOT EXISTS idx_logs_usuario ON logs_auditoria(usuario_id);
 CREATE INDEX IF NOT EXISTS idx_logs_fecha ON logs_auditoria(fecha);
+
+-- Bloque 8: evidencia fotografica (ANTES/DESPUES) de un servicio.
+CREATE TABLE evidencias_servicio (
+  id serial PRIMARY KEY,
+  solicitud_id integer REFERENCES service_requests(id) ON DELETE CASCADE,
+  tipo varchar(20) NOT NULL CHECK (tipo IN ('ANTES', 'DESPUES')),
+  imagen_url text NOT NULL,
+  nota text,
+  latitud decimal(10,8),
+  longitud decimal(11,8),
+  fecha timestamp DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_evidencias_servicio_solicitud_id ON evidencias_servicio(solicitud_id);

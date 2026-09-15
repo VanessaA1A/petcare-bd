@@ -154,6 +154,22 @@ Reacción rápida enviada mientras el servicio está en curso (`service_requests
 > esquema (ver la nota en [MIGRATIONS.md](MIGRATIONS.md)). Vale la pena confirmarlo contra
 > la especificación de producto original si está disponible.
 
+### evidencias_servicio
+| Columna | Tipo | Descripción |
+| --- | --- | --- |
+| id | SERIAL | Identificador primario |
+| solicitud_id | INTEGER | Servicio al que pertenece la evidencia (FK a service_requests) |
+| tipo | VARCHAR(20) | ANTES / DESPUES |
+| imagen_url | TEXT | URL de la foto (obligatoria) |
+| nota | TEXT | Nota opcional (p. ej. "Dueño no presente, mascota entregada a...") |
+| latitud / longitud | DECIMAL(10,8) / DECIMAL(11,8) | Ubicación opcional donde se tomó la foto |
+| fecha | TIMESTAMP | Fecha de la evidencia |
+
+Foto obligatoria antes de pasar de ACEPTADA a EN_PROGRESO, y antes de pasar de EN_PROGRESO
+a COMPLETADO — con una excepción flexible: sin internet, el cambio de estado se permite
+igual y la foto se sube cuando el dispositivo reconecta (queda marcado como "sin evidencia"
+mientras tanto).
+
 ### verificaciones
 | Columna | Tipo | Descripción |
 | --- | --- | --- |

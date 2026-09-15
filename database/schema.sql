@@ -46,7 +46,8 @@ CREATE TABLE usuarios (
   two_factor_enabled boolean DEFAULT false,
   two_factor_secret varchar(255),
   fecha_ultimo_cambio_password timestamptz,
-  bloqueado_hasta timestamptz
+  bloqueado_hasta timestamptz,
+  badge varchar(30) NOT NULL DEFAULT 'NUEVO'
 );
 
 CREATE TABLE sesiones (

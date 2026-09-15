@@ -45,8 +45,9 @@ sobre una base que ya tiene algunas de ellas.
 | `010_add_chat_image_url.sql` | `chat_messages.image_url` — permite adjuntar una imagen a un mensaje de chat |
 | `011_add_emergencias.sql` | Tabla `emergencias` — reporte de emergencia durante un servicio en curso, con notificación FCM al dueño, al cuidador y a los administradores |
 | `012_add_valoraciones_tiempo_real.sql` | Tabla `valoraciones_tiempo_real` — reacción rápida (corazón/estrella/pulgar) del dueño mientras el servicio está en curso, independiente de `ratings` |
+| `013_add_badge_usuarios.sql` | `usuarios.badge` — etiqueta calculada (NUEVO/EN_CRECIMIENTO/CONFIABLE/EXPERIMENTADO/ELITE/EN_OBSERVACION) según servicios completados, calificación promedio y cancelaciones; se recalcula automáticamente en el backend |
 
-> **Nota de procedencia (010-012):** estas tres migraciones mirroran el commit `0a399f0`
+> **Nota de procedencia (010-013):** estas tres migraciones mirroran el commit `0a399f0`
 > de `petcare-services` (2026-09-14). El DDL de `010` se copió literal de
 > `petcare-services/migrations/010_add_chat_image_url.sql`. El DDL de `011` y `012`
 > (tablas `emergencias` y `valoraciones_tiempo_real`) se redactó siguiendo las

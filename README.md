@@ -43,6 +43,7 @@ base de datos coherente para backend y app móvil.
 | two_factor_enabled / two_factor_secret | BOOLEAN / TEXT | 2FA (reservado) |
 | fecha_ultimo_cambio_password | TIMESTAMPTZ | Última vez que cambió su contraseña |
 | bloqueado_hasta | TIMESTAMPTZ | Bloqueo temporal de la cuenta (reservado) |
+| badge | VARCHAR(30) | Etiqueta calculada: NUEVO, EN_CRECIMIENTO, CONFIABLE, EXPERIMENTADO, ELITE o EN_OBSERVACION, según servicios completados/calificación promedio/cancelaciones; recalculada automáticamente por el backend (`BadgeService`) |
 
 ### pets
 | Columna | Tipo | Descripción |

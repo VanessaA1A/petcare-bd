@@ -324,3 +324,18 @@ CREATE INDEX IF NOT EXISTS idx_alertas_perdida_pets_id ON alertas_perdida(pets_i
 CREATE INDEX IF NOT EXISTS idx_alertas_perdida_usuario_id ON alertas_perdida(usuario_id);
 CREATE INDEX IF NOT EXISTS idx_alertas_perdida_estado ON alertas_perdida(estado);
 CREATE INDEX IF NOT EXISTS idx_avistamientos_alerta_id ON avistamientos(alerta_id);
+
+-- Bloque 9: disponibilidad recurrente semanal del cuidador (GET /api/calendario devolvia
+-- "disponibilidad" siempre vacio porque este concepto no existia todavia).
+CREATE TABLE disponibilidad_cuidador (
+  id serial PRIMARY KEY,
+  cuidador_id integer REFERENCES usuarios(id) ON DELETE CASCADE,
+  dia_semana integer NOT NULL CHECK (dia_semana >= 0 AND dia_semana <= 6),
+  hora_inicio time NOT NULL,
+  hora_fin time NOT NULL,
+  activo boolean DEFAULT TRUE,
+  fecha_creacion timestamp DEFAULT CURRENT_TIMESTAMP,
+  CHECK (hora_inicio < hora_fin)
+);
+
+CREATE INDEX IF NOT EXISTS idx_disponibilidad_cuidador_cuidador_id ON disponibilidad_cuidador(cuidador_id, dia_semana);
